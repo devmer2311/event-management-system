@@ -78,15 +78,21 @@ export async function getOrdersByEvent({
 
     const orders = await Order.aggregate([
       {
+        $match: { event: eventObjectId },
+      },
+      {
         $lookup: {
           from: "users",
-          localField: "buyer",
-          foreignField: "_id",
+          localField: "buyer", 
+          foreignField: "clerkId",
           as: "buyer",
         },
       },
       {
-        $unwind: "$buyer",
+        $unwind: {
+          path: "$buyer",
+          preserveNullAndEmptyArrays: true, 
+        },
       },
       {
         $lookup: {
@@ -105,25 +111,27 @@ export async function getOrdersByEvent({
           totalAmount: 1,
           createdAt: 1,
           eventTitle: "$event.title",
-          eventId: "$event._id",
+          event: "$event._id",
           buyer: {
             $concat: ["$buyer.firstName", " ", "$buyer.lastName"],
           },
         },
       },
-      {
-        $match: {
-          $and: [
-            { eventId: eventObjectId },
-            { buyer: { $regex: RegExp(searchString, "i") } },
-          ],
-        },
-      },
+      ...(searchString
+        ? [
+            {
+              $match: {
+                buyer: { $regex: searchString, $options: "i" },
+              },
+            },
+          ]
+        : []),
     ]);
 
     return JSON.parse(JSON.stringify(orders));
   } catch (error) {
     handleError(error);
+    return []; 
   }
 }
 // GET ORDERS BY USER
