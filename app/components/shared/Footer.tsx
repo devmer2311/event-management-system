@@ -21,7 +21,7 @@ const Footer = () => {
             className="dark:hidden"
           />
         </Link>
-        <p>2024 Eventful - All rights reserved</p>
+        <p>2025 Eventful - All rights reserved</p>
       </div>
     </footer>
   );
