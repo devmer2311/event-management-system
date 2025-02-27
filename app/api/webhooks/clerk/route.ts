@@ -73,6 +73,8 @@ export async function POST(req: Request) {
       await clerkClient.users.updateUserMetadata(id, {
         publicMetadata: {
           userId: newUser._id,
+        },
+        privateMetadata: {
           "admin":true,
         },
       });
